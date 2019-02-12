@@ -1,0 +1,32 @@
+version: '3.3'
+services:
+  ui:
+    image: igormelnikov/ui:test
+    ports:
+      - 8000:8000/tcp
+    networks:
+      - test
+  crawler:
+    image: igormelnikov/crawler:test
+    networks:
+      - test
+    depends_on:
+      - rabbit
+  mongo:
+    image: mongo:3.2
+    networks:
+      - test
+    volumes:
+      - index_db
+  rabbit:
+    image: rabbitmq:3
+    ports:
+      - 5672:5672/tcp
+    networks:
+      - test
+
+volumes:
+  index_db:
+
+networks:
+  test:
