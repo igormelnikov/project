@@ -1,0 +1,36 @@
+- name: Install gitlab-ci container
+  hosts: gitlab
+  become: true
+  tasks:
+    - name: Add apt https repo support and python
+      apt:
+        name: gnupg-curl
+
+    - name: Add apt key
+      apt_key:
+        keyserver: https://download.docker.com/linux/ubuntu/gpg
+        id: 0EBFCD88
+
+    - name: Add apt repo
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+
+    - name: Install docker and docker-compose package
+      apt:
+        name: "{{ item }}"
+      loop:
+          - docker-ce
+          - docker-compose
+
+    - name: Create directory for gitlab
+      file: path=/srv/gitlab state=directory
+
+    - name: Add docker-compose for gitlab
+      copy:
+        src: docker-compose.yml
+        dest: /srv/gitlab/docker-compose.yml
+
+    - name: Launch gitlab host container
+      docker_service:
+        project_src: /srv/gitlab/
+        state: present

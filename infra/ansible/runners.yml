@@ -1,0 +1,30 @@
+- name: Install gitlab-ci container
+  hosts: gitlab
+  become: true
+  vars_files:
+    - secret_vars.yml
+  vars:
+    count: 4
+  tasks:
+    - name: Create runners
+      docker_container:
+        name: gitlab-runner{{ item }}
+        image: gitlab/gitlab-runner:latest
+        restart_policy: always
+        volumes:
+          - /srv/gitlab-runner/config:/etc/gitlab-runner
+          - /var/run/docker.sock:/var/run/docker.sock
+      loop: "{{ range (0, count)|list }}"
+
+    - name: Register container IDs for ansible
+      command: docker ps -q
+      register: container_ids
+
+    - name: Register runners for gitlab-ci
+      command: "docker exec -it gitlab-runner{{ item }} gitlab-runner register  \
+            --non-interactive --url https://imel-project.ml \
+            --registration-token {{ reg_token }} --executor docker --docker-image docker:stable \
+            --description docker-runner --tag-list xenial,ubuntu,docker,linux --run-untagged --locked=false \
+            --docker-privileged"
+      when: container_ids.changed
+      loop: "{{ range (0, count)|list }}"
