@@ -50,12 +50,12 @@ resource "google_compute_firewall" "firewall_https" {
   target_tags   = ["https-server"]
 }
 
-resource "google_compute_firewall" "firewall_puma" {
-  name = "default-puma-server"
+resource "google_compute_firewall" "firewall_ui" {
+  name = "allow-search-engine-ui"
   network = "default"
   allow {
     protocol = "tcp"
-    ports = ["9292"]
+    ports = ["8000"]
   }
   target_tags = ["docker-machine"]
 }
