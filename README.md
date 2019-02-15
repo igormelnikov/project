@@ -1,59 +1,62 @@
 # Otus Project
 
-Final Project for Otus Devops
+Финальный проект Otus Devops, описание  MVP.
 
-**The following README is a placeholder**
+## Установка
 
-## Getting Started
+`cd infra/terraform`
+Установить переменную "project" - ID проекта в GCE, где будет развёрнута инфраструктура.
+`terraform apply`
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+`cd ../ansible`
+Указать соответствующий URL докер-хоста в `docker-compose.yml`.
+`ansible-playbook gitlab-ci.yml`
+Установить переменную "reg_token" - Registration token для раннеров.
+`ansible-playbook runners.yml`
 
-### Prerequisites
+## Описание CI/CD системы
 
-What things you need to install the software and how to install them
+Gitlab хост разворачивается на GCE с помощью Terraform, Ansible и docker-compose. Используется заранее созданный домен imel-project.ml , указывающий на IP-адрес Gitlab хоста. Это необходимо для получения сертификата с помощью Let's Encrypt и организации Docker registry на самом хосте с доступом по HTTPS, порт 4567.
 
-```
-Give examples
-```
+Terraform создаёт:
+1. Сам инстанс;
+2. Необходимые правила файрволла для хоста Gitlab и хостов окружений;
+3. Бакет для хранения состояния окружений. 
 
-### Installing
+## Конфигурация микросервисного приложения
 
-A step by step series of examples that tell you how to get a development env running
+Все репозитории объединены в группу **otus-project** https://imel-project.ml/otus-project
 
-Say what the step will be
+В группе определены секретные переменные окружения:
 
-```
-Give the example
-```
+- `GOOGLE_CREDENTIALS` - json-файл сервис аккаунта GCE;
+- `GOOGLE_APPUSER_KEY` - файл приватного ключа appuser;
+- `GCLOUD_PROJECT_NAME` - название проекта GCE.
 
-And repeat
+  - **ui** https://imel-project.ml/otus-project/ui/ - репозиторий Search Engine UI с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами.
+ 
+  - **crawler** https://imel-project.ml/otus-project/crawler/ - репозиторий Search Engine Crawler с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами. 
+  
+  - **deploy** https://imel-project.ml/otus-project/deploy - репозиторий кода для развёртывания микросервисного приложения: компоненты ui и crawler, а также необходимые сервисы mongodb и rabbitmq.
+  
+## CI/CI пайплайн
 
-```
-until finished
-```
+Для репозиториев **ui** и **crawler** описана конфигурация пайплайна в `.gitlab-ci.yml`.
 
-End with an example of getting some data out of the system or using it for a little demo
+1. **Build** - сборка образа и пуш в Gitlab Registry с тэгом соответствующей ветки.
+2. **Review** - поднятие динамического окружения для веток, отличных от **master** и деплой микросервисного приложения. Плейбук Ansible параметризован, чтобы для текущего репозитория использовался релиз текущей ветки (напр. feature-1), а для остальных - master. Приложение доступно по адресу инстанса окружения и порту 8000.
+3. **Cleanup** - удаление динамического окружения с ручной активацией. 
 
-## Running the tests
+Окружение представляет собой инстанс в GCE с соответствующим названием.
+Terraform и Ansible были использованы для деплоя, поскольку docker-machine создаёт хост с нуля, не проверяя его состояние, и хранит конфигурацию локально, а сервера окружений должны быть сохранены между пайплайнами. Terraform хранит конфигурацию в удалённом бакенде, а Ansible проверяет необходимость внесения изменений.
 
-Explain how to run the automated tests for this system
+На данный момент ссылки на окружения являются плейсхолдерами.
 
-### Break down into end to end tests
+## Запланированные фичи
 
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
+1. Добавление тестов перед review.
+2. Создание статических окружений staging и production, на которые происходит деплой из master.
+3. Конфигурация доступов к окружениям по ссылке в Gitlab CI.
+4. Разбиение кода .gitlab-ci.yml на скрипты.
+5. Параметризация конфигураций сервисов в Ansible (напр. MONGO, MONGO_PORT)
+6. Мониторинг.
