@@ -4,19 +4,18 @@
 
 ## Установка
 
-`cd infra/terraform`
-Установить переменную "project" - ID проекта в GCE, где будет развёрнута инфраструктура.
-`terraform apply`
-
-`cd ../ansible`
-Указать соответствующий URL докер-хоста в `docker-compose.yml`.
-`ansible-playbook gitlab-ci.yml`
-Установить переменную "reg_token" - Registration token для раннеров.
-`ansible-playbook runners.yml`
+- `cd infra/terraform`
+- Установить переменную `project` - ID проекта в GCE, где будет развёрнута инфраструктура.
+- `terraform apply`
+- `cd ../ansible`
+- Указать соответствующий URL докер-хоста в `docker-compose.yml`.
+- `ansible-playbook gitlab-ci.yml`
+- Установить переменную `reg_token` - Registration token для раннеров.
+- `ansible-playbook runners.yml`
 
 ## Описание CI/CD системы
 
-Gitlab хост разворачивается на GCE с помощью Terraform, Ansible и docker-compose. Используется заранее созданный домен imel-project.ml , указывающий на IP-адрес Gitlab хоста. Это необходимо для получения сертификата с помощью Let's Encrypt и организации Docker registry на самом хосте с доступом по HTTPS, порт 4567.
+Gitlab хост разворачивается на GCE с помощью Terraform, Ansible и docker-compose. Используется заранее созданный домен imel-project.ml, указывающий на IP-адрес Gitlab хоста. Это необходимо для получения сертификата с помощью Let's Encrypt и организации Docker registry на самом хосте с доступом по HTTPS, порт 4567.
 
 Terraform создаёт:
 1. Сам инстанс;
@@ -33,11 +32,11 @@ Terraform создаёт:
 - `GOOGLE_APPUSER_KEY` - файл приватного ключа appuser;
 - `GCLOUD_PROJECT_NAME` - название проекта GCE.
 
-  - **ui** https://imel-project.ml/otus-project/ui/ - репозиторий Search Engine UI с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами.
+- **ui** https://imel-project.ml/otus-project/ui/ - репозиторий Search Engine UI с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами.
  
-  - **crawler** https://imel-project.ml/otus-project/crawler/ - репозиторий Search Engine Crawler с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами. 
+- **crawler** https://imel-project.ml/otus-project/crawler/ - репозиторий Search Engine Crawler с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами. 
   
-  - **deploy** https://imel-project.ml/otus-project/deploy - репозиторий кода для развёртывания микросервисного приложения: компоненты ui и crawler, а также необходимые сервисы mongodb и rabbitmq.
+- **deploy** https://imel-project.ml/otus-project/deploy - репозиторий кода для развёртывания микросервисного приложения: компоненты ui и crawler, а также необходимые сервисы mongodb и rabbitmq.
   
 ## CI/CI пайплайн
 
