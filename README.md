@@ -36,7 +36,7 @@ Terraform создаёт:
  
 - **crawler** https://imel-project.ml/otus-project/crawler/ - репозиторий Search Engine Crawler с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами. 
   
-- **deploy** https://imel-project.ml/otus-project/deploy - репозиторий кода для развёртывания микросервисного приложения: компоненты ui и crawler, а также необходимые сервисы mongodb и rabbitmq.
+- **deploy** https://imel-project.ml/otus-project/deploy/ - репозиторий кода для развёртывания микросервисного приложения: компоненты ui и crawler, а также необходимые сервисы mongodb и rabbitmq.
   
 ## CI/CI пайплайн
 
