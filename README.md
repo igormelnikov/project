@@ -17,6 +17,8 @@
 
 Gitlab хост разворачивается на GCE с помощью Terraform, Ansible и docker-compose. Используется заранее созданный домен imel-project.ml, указывающий на IP-адрес Gitlab хоста. Это необходимо для получения сертификата с помощью Let's Encrypt и организации Docker registry на самом хосте с доступом по HTTPS, порт 4567.
 
+Для всех репозиториев настроена отправка уведомлений в Slack в канале [#igor_melnikov](https://devops-team-otus.slack.com/messages/CDCDS945V/).
+
 Terraform создаёт:
 1. Сам инстанс;
 2. Необходимые правила файрволла для хоста Gitlab и хостов окружений;
@@ -32,11 +34,19 @@ Terraform создаёт:
 - `GOOGLE_APPUSER_KEY` - файл приватного ключа appuser;
 - `GCLOUD_PROJECT_NAME` - название проекта GCE.
 
-- **ui** https://imel-project.ml/otus-project/ui/ - репозиторий Search Engine UI с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами.
+- [ui](https://imel-project.ml/otus-project/ui/) - репозиторий Search Engine UI с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами. Доступен на порту 8000.
  
-- **crawler** https://imel-project.ml/otus-project/crawler/ - репозиторий Search Engine Crawler с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами. 
+- [crawler](https://imel-project.ml/otus-project/crawler/) - репозиторий Search Engine Crawler с добавленным Dockerfile для создания контейнера на базе python-alpine, в котором указаны переменные окружения для связи с необходимыми сервисами.
   
-- **deploy** https://imel-project.ml/otus-project/deploy/ - репозиторий кода для развёртывания микросервисного приложения: компоненты ui и crawler, а также необходимые сервисы mongodb и rabbitmq.
+- [deploy](https://imel-project.ml/otus-project/deploy/) - репозиторий кода для развёртывания микросервисного приложения: компоненты ui и crawler, сервисы mongodb и rabbitmq и мониторинг.
+
+## Конфигурация мониторинга
+
+- [prom](https://imel-project.ml/otus-project/prom/) - репозиторий контейнера Prometheus. Для сбора метрик железа и Docker хоста используются cAdvisor (доступен на порту 8080) и node-exporter. Также настроены пробы blackbox-exporter для ui и crawler. Доступен на порту 9090.
+
+- [grafana](https://imel-project.ml/otus-project/grafana/) - репозиторий контейнера Grafana. Настроен провиженинг datasource Prometheus (см. выше) и дэшбордов в директории `dashboards` для визуализации метрик docker, ui и crawler. Доступен на порту 3000.
+
+- [alertmanager](https://imel-project.ml/otus-project/alertmanager/) - репозиторий контейнера alertmanager. Настроено взаимодействие с Prometheus и отправка алертов в Slack #igor_melnikov. В качестве метрик для алертинга были выбраны статусы up и пробы blackbox-exporter для инстансов ui и crawler. Доступен на порту 9093.
   
 ## CI/CI пайплайн
 
@@ -49,12 +59,3 @@ Terraform создаёт:
 
 Окружение представляет собой инстанс в GCE с соответствующим названием.
 Terraform и Ansible были использованы для деплоя, поскольку docker-machine создаёт хост с нуля, не проверяя его состояние, и хранит конфигурацию локально, а сервера окружений должны быть сохранены между пайплайнами. Terraform хранит конфигурацию в удалённом бакенде, а Ansible проверяет необходимость внесения изменений. Для каждого окружения создаётся отдельный workspace Terraform, чтобы окружение можно было удалить `terraform destroy`.
-
-На данный момент ссылки на окружения являются плейсхолдерами.
-
-## Запланированные фичи
-
-1. Создание статических окружений staging и production, на которые происходит деплой из master.
-2. Конфигурация доступов к окружениям по ссылке в Gitlab CI.
-3. Параметризация конфигураций сервисов в Ansible (напр. MONGO, MONGO_PORT)
-4. Мониторинг.
