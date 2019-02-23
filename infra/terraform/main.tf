@@ -70,12 +70,42 @@ resource "google_compute_firewall" "firewall_registry" {
   target_tags = ["docker-registry"]
 }
 
+resource "google_compute_firewall" "firewall_cadvisor" {
+  name = "allow-cadvisor"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports = ["8080"]
+  }
+  target_tags = ["docker-machine"]
+}
+
 resource "google_compute_firewall" "firewall_prometheus" {
   name = "allow-prometheus"
   network = "default"
   allow {
     protocol = "tcp"
     ports = ["9090"]
+  }
+  target_tags = ["docker-machine"]
+}
+
+resource "google_compute_firewall" "firewall_grafana" {
+  name = "allow-grafana"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports = ["3000"]
+  }
+  target_tags = ["docker-machine"]
+}
+
+resource "google_compute_firewall" "firewall_alertmanager" {
+  name = "allow-alertmanager"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports = ["9093"]
   }
   target_tags = ["docker-machine"]
 }
