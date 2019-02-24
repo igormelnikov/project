@@ -2,6 +2,7 @@ provider "google" {
   version = "1.19.1"
   project = "${var.project}"
   region  = "${var.region}"
+  zone = "${var.zone}"
 }
 
 resource "google_compute_project_metadata_item" "ssh-users" {
@@ -12,7 +13,6 @@ resource "google_compute_project_metadata_item" "ssh-users" {
 resource "google_compute_instance" "gitlab-host" {
   name         = "gitlab-host"
   machine_type = "n1-standard-1"
-  zone = "${var.zone}"
   tags = ["http-server", "https-server", "docker-registry"]
   labels = {
     "gitlab" = ""
