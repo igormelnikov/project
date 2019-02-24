@@ -47,6 +47,11 @@ resource "google_compute_instance_group" "gitlab" {
     name = "https"
     port = 443
   }
+
+  named_port {
+    name = "registry"
+    port = 4567
+  }
 }
 
 resource "google_compute_https_health_check" "gitlab" {
@@ -54,3 +59,34 @@ resource "google_compute_https_health_check" "gitlab" {
   request_path = "/-/health"
 }
 
+resource "google_compute_global_forwarding_rule" "registry" {
+  name = "registry"
+  ip_address = "${google_compute_global_address.entrypoint.address}"
+  port_range = "25"
+  target = "${google_compute_target_ssl_proxy.registry.self_link}"
+}
+
+resource "google_compute_target_ssl_proxy" "registry" {
+  name    = "registry-proxy"
+  ssl_certificates = ["${google_compute_ssl_certificate.default.self_link}"]
+  backend_service = "${google_compute_backend_service.registry.self_link}"
+}
+
+resource "google_compute_backend_service" "registry" {
+  name      = "gitlab-registry"
+  port_name = "registry"
+  protocol  = "SSL"
+
+  backend {
+    group = "${google_compute_instance_group.gitlab.self_link}"
+  }
+
+  health_checks = ["${google_compute_health_check.registry.self_link}"]
+}
+
+resource "google_compute_health_check" "registry" {
+  name = "registry-health-check"
+  ssl_health_check {
+    port = "4567"
+  }
+}
