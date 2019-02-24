@@ -1,3 +1,5 @@
 .terraform
 secret_vars.yml
 terraform.tf*
+*.crt
+*.key
