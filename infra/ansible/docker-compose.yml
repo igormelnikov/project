@@ -5,17 +5,16 @@ web:
   environment:
     GITLAB_OMNIBUS_CONFIG: |
       external_url 'https://imel-project.ml/'
-      registry_external_url 'https://imel-project.ml:4567'
+      registry_external_url 'https://registry.imel-project.ml/'
       nginx['enable'] = true
       nginx['redirect_http_to_https'] = true
       nginx['redirect_http_to_https_port'] = 80
-      letsencrypt['enable'] = true
-      letsencrypt['contact_emails'] = ['prodwiththeprod@gmail.com']
+      gitlab_rails['monitoring_whitelist'] = ['35.191.0.0/16', '130.211.0.0/22']
+
   ports:
     - '80:80'
     - '443:443'
     - '2222:22'
-    - '4567:4567'
   volumes:
     - '/srv/gitlab/config:/etc/gitlab'
     - '/srv/gitlab/logs:/var/log/gitlab'

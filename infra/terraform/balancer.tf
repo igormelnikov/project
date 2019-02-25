@@ -24,21 +24,6 @@ resource "google_compute_ssl_certificate" "default" {
 resource "google_compute_url_map" "default" {
   name            = "default"
   default_service = "${google_compute_backend_service.gitlab.self_link}"
-
-  host_rule {
-    hosts = ["imel-project.ml"]
-    path_matcher = "allpaths"
-  }
-
-  path_matcher {
-    name = "allpaths"
-    default_service = "${google_compute_backend_service.gitlab.self_link}"
-
-    path_rule {
-      paths = ["/registry"]
-      service = "${google_compute_backend_service.gitlab-registry.self_link}"
-    }
-  }
 }
 
 resource "google_compute_backend_service" "gitlab" {
@@ -62,26 +47,9 @@ resource "google_compute_instance_group" "gitlab" {
     name = "https"
     port = 443
   }
-
-  named_port {
-    name = "registry"
-    port = 4567
-  }
 }
 
 resource "google_compute_https_health_check" "gitlab" {
   name         = "gitlab-check"
   request_path = "/-/health"
-}
-
-resource "google_compute_backend_service" "gitlab-registry" {
-  name      = "gitlab-registry"
-  port_name = "registry"
-  protocol  = "HTTPS"
-
-  backend {
-    group = "${google_compute_instance_group.gitlab.self_link}"
-  }
-
-  health_checks = ["${google_compute_https_health_check.gitlab.self_link}"]
 }
