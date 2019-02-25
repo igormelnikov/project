@@ -15,7 +15,8 @@
 
 ## Описание CI/CD системы
 
-Gitlab хост разворачивается на GCE с помощью Terraform, Ansible и docker-compose. Используется заранее созданный домен imel-project.ml, указывающий на IP-адрес Gitlab хоста. Это необходимо для получения сертификата с помощью Let's Encrypt и организации Docker registry на самом хосте с доступом по HTTPS, порт 4567.
+Gitlab хост разворачивается на GCE с помощью Terraform, Ansible и docker-compose. Используется заранее созданный домен imel-project.ml, указывающий на IP-адрес Load Balancer.
+Для registry используется registry.imel-project.ml. Поскольку на текущий момент Terraform не поддерживает Google Managed SSL Certificates, в proxy используются заранее созданный сертификат.
 
 Для всех репозиториев настроена отправка уведомлений в Slack в канале [#igor_melnikov](https://devops-team-otus.slack.com/messages/CDCDS945V/).
 

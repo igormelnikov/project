@@ -53,4 +53,3 @@ resource "google_compute_https_health_check" "gitlab" {
   name         = "gitlab-check"
   request_path = "/-/health"
 }
-
