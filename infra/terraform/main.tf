@@ -110,6 +110,17 @@ resource "google_compute_firewall" "firewall_alertmanager" {
   target_tags = ["docker-machine"]
 }
 
+resource "google_compute_firewall" "firewall_kibana" {
+  name = "allow-kibana"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports = ["5601"]
+  }
+  target_tags = ["docker-machine"]
+}
+
+
 module "storage-bucket" {
   source  = "SweetOps/storage-bucket/google"
   version = "0.1.1"

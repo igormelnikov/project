@@ -48,6 +48,14 @@ Terraform создаёт:
 - [grafana](https://imel-project.ml/otus-project/grafana/) - репозиторий контейнера Grafana. Настроен провиженинг datasource Prometheus (см. выше) и дэшбордов в директории `dashboards` для визуализации метрик docker, ui и crawler. Доступен на порту 3000.
 
 - [alertmanager](https://imel-project.ml/otus-project/alertmanager/) - репозиторий контейнера alertmanager. Настроено взаимодействие с Prometheus и отправка алертов в Slack #igor_melnikov. В качестве метрик для алертинга были выбраны статусы up и пробы blackbox-exporter для инстансов ui и crawler. Доступен на порту 9093.
+
+## Конфигурация логирования
+
+Для логирования используется стек EFK.
+
+- [fluentd](https://imel-project.ml/otus-project/fluentd) - репозиторий контейнера fluentd. Настроен парсинг json логов ui и crawler.
+
+Kibana доступен на порту 5601.
   
 ## CI/CI пайплайн
 
