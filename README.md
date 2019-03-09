@@ -127,10 +127,10 @@ i.e. to access the search engine UI on production environment, open `http://34.7
 
 ## Backlog
 
-1. A nginx host to provide access to environments on URL paths, i.e. `http://imel-project.ml/staging`, `http://imel-project.ml/production/monitoring` etc.
+1. An **nginx** host to provide access to environments on URL paths, i.e. `http://imel-project.ml/staging`, `http://imel-project.ml/production/monitoring` etc.
 2. Proper versioning.
 3. Using Docker Swarm or Kubernetes for cluster deployment.
-4. Using Google Managed SSL certificate in Terraform configuration instead of one provided beforehand.
+4. Using a Google Managed SSL certificate in Terraform configuration instead of one provided beforehand.
 5. Tests for this repository using Travis CI.
 
 ## Authors
