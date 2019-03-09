@@ -94,7 +94,7 @@ Repositories:
 
 ### Deployment configuration
 
-[deploy](https://imel-project.ml/otus-project/deploy/) - Code for setting up the environment infrastructure and deploying the app with the prerequisites (mongodb, rabbitmq) as well as monitoring and logging services.
+- [deploy](https://imel-project.ml/otus-project/deploy/) - Code for setting up the environment infrastructure and deploying the app with the prerequisites (mongodb, rabbitmq) as well as monitoring and logging services.
 
 ## CI/CD pipeline
 
