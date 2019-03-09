@@ -114,14 +114,14 @@ Unlike docker-machine, Terraform and Ansible allow for storing the state of the 
 Repositories for monitoring and logging services contain only the build stage and push to master.
 
 ## Accessing microservices
-Staging environment: `34.76.185.235`
-Production environment: `34.76.60.50`
-UI: port `8000`
-cAdvisor: port `8080`
-Prometheus: port `9090`
-Grafana: port `3000`
-Alertmanager: port `9093`
-Kibana: port `5601`
+- Staging environment: `34.76.185.235`
+- Production environment: `34.76.60.50`
+- UI: port `8000`
+- cAdvisor: port `8080`
+- Prometheus: port `9090`
+- Grafana: port `3000`
+- Alertmanager: port `9093`
+- Kibana: port `5601`
 
 i.e. to access the search engine UI on production environment, open `http://34.76.185.235:8000`.
 
