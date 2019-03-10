@@ -119,11 +119,11 @@ Repositories for monitoring and logging services contain only the build stage an
 - UI: port `8000`
 - cAdvisor: port `8080`
 - Prometheus: port `9090`
-- Grafana: port `3000`
+- Grafana: port `3000`, login `admin`, password `secret`
 - Alertmanager: port `9093`
 - Kibana: port `5601`
 
-i.e. to access the search engine UI on production environment, open `http://34.76.185.235:8000`.
+i.e. to access the search engine UI on staging environment, open `http://34.76.185.235:8000`.
 
 ## Backlog
 
