@@ -77,7 +77,7 @@ Services used:
 Repositories:
 
 - [prom](https://imel-project.ml/otus-project/prom/) - Prometheus container.
-- [grafana](https://imel-project.ml/otus-project/grafana/) - Grafana container. Authomaticaly provisions the Prometheus data source (see above) and dashboards. Available at port `3000`.
+- [grafana](https://imel-project.ml/otus-project/grafana/) - Grafana container. Authomaticaly provisions the Prometheus data source (see above) and dashboards.
 - [alertmanager](https://imel-project.ml/otus-project/alertmanager/) - Alertmanager container. Set up to receive metrics from the Prometheus container and sends alerts to a Slack channel. The metrics monitored are "up" statuses from blackbox-exporter probes.
 
 ### Logging configuration
