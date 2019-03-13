@@ -115,7 +115,7 @@ Repositories for monitoring and logging services contain only the build stage an
 
 ## Accessing microservices
 - Staging environment: `34.76.185.235`
-- Production environment: `34.76.60.50`
+- Production environment: `34.76.160.212`
 - UI: port `8000`
 - cAdvisor: port `8080`
 - Prometheus: port `9090`
