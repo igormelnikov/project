@@ -2,6 +2,9 @@
 
 A CI/CD system for a sample microservices application developed over the course of studies at OTUS using Terraform, Ansible and Docker.
 
+## Author's note
+Hosting the CI/CD system and the environment instances 24/7 gets rather expensive, so all the repositories described below were also copied to the main project repo in the `src` directory.
+
 The application used: a simple search engine by Express 42.
 https://github.com/express42/search_engine_ui
 https://github.com/express42/search_engine_crawler
