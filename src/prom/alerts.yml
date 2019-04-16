@@ -1,0 +1,20 @@
+groups:
+  - name: alert.rules
+    rules:
+    - alert: InstanceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: page
+      annotations:
+        description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute'
+        summary: 'Instance {{ $labels.instance }} down'
+
+    - alert: InstanceUnavailable
+      expr: probe_success == 0
+      for: 1m
+      labels:
+        severity: page
+      annotations:
+        description: '{{ $labels.instance }} is not responding to http requests for over 1 minute'
+        summary: 'Instance {{ $labels.instance }} unavailable'
