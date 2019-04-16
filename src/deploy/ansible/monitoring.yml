@@ -1,0 +1,83 @@
+---
+- name: Deploy monitoring services
+  hosts: "{{ target_host }}"
+  become: true
+
+  tasks:
+    - name: Deploy node-exporter
+      docker_container:
+        name: node-exporter
+        image: prom/node-exporter:v0.15.2
+        volumes:
+          - /proc:/host/proc:ro
+          - /sys:/host/sys:ro
+          - /:/rootfs:ro
+        command:
+          - '--path.procfs=/host/proc'
+          - '--path.sysfs=/host/sys'
+          - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+        networks:
+          - name: test
+
+    - name: Deploy cAdvisor
+      docker_container:
+        name: cadvisor
+        image: google/cadvisor:v0.29.0
+        volumes:
+          - '/:/rootfs:ro'
+          - '/var/run:/var/run:rw'
+          - '/sys:/sys:ro'
+          - '/var/lib/docker/:/var/lib/docker:ro'
+        networks:
+          - name: test
+        ports:
+          - "8080:8080/tcp"
+
+    - name: Deploy blackbox-exporter
+      docker_container:
+        name: blackbox-exporter
+        image: prom/blackbox-exporter:latest
+        networks:
+          - name: test
+
+    - name: Deploy Prometheus
+      docker_container:
+        name: prometheus
+        image: "{{ lookup('env', 'CI_REGISTRY') }}/{{ lookup('env', 'CI_PROJECT_NAMESPACE') }}/prom:master"
+        pull: yes
+        recreate: yes
+        networks:
+          - name: test
+        ports:
+          - "9090:9090/tcp"
+
+    - name: Deploy grafana
+      docker_container:
+        name: grafana
+        image: "{{ lookup('env', 'CI_REGISTRY') }}/{{ lookup('env', 'CI_PROJECT_NAMESPACE') }}/grafana:master"
+        pull: yes
+        recreate: yes
+        volumes:
+          - grafana_data:/var/lib/grafana
+        env:
+          GF_SECURITY_ADMIN_USER: admin
+          GF_SECURITY_ADMIN_PASSWORD: secret
+        networks:
+          - name: test
+        ports:
+          - "3000:3000/tcp"
+
+    - name: Deploy alertmanager
+      docker_container:
+        name: alertmanager
+        image: "{{ lookup('env', 'CI_REGISTRY') }}/{{ lookup('env', 'CI_PROJECT_NAMESPACE') }}/alertmanager:master"
+        command:
+          - '--config.file=/etc/alertmanager/config.yml'
+        networks:
+          - name: test
+        ports:
+          - "9093:9093/tcp"
+
+    - name: Create grafana volume
+      docker_volume:
+        name: grafana_data

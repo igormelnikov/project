@@ -1,0 +1,69 @@
+---
+- name: Deploy the app
+  hosts: "{{ target_host }}"
+  become: true
+
+  tasks:
+
+    - name: Deploy rabbitmq
+      docker_container:
+        name: rabbit
+        image: rabbitmq:3
+        recreate: yes
+        ports:
+          - "5672:5672/tcp"
+        networks:
+          - name: test
+
+    - name: Deploy mongodb
+      docker_container:
+        name: mongo
+        image: mongo:3.2
+        recreate: yes
+        networks:
+          - name: test
+        volumes:
+          - index_db
+
+    - name: Deploy UI
+      docker_container:
+        name: ui
+        image: "{{ lookup('env', 'CI_REGISTRY') }}/{{ lookup('env', 'CI_PROJECT_NAMESPACE') }}/ui:{{ ui_version | default('master') }}"
+        pull: yes
+        recreate: yes
+        networks:
+          - name: test
+        ports:
+          - "8000:8000/tcp"
+        env:
+          MONGO: mongo
+          MONGO_PORT: 27017
+        log_driver: fluentd
+        log_options:
+          fluentd-address: localhost:24224
+          tag: service.ui
+
+    - name: Deploy Crawler
+      docker_container:
+        name: crawler
+        image: "{{ lookup('env', 'CI_REGISTRY') }}/{{ lookup('env', 'CI_PROJECT_NAMESPACE') }}/crawler:{{ crawler_version | default('master') }}"
+        pull: yes
+        recreate: yes
+        restart_policy: on-failure
+        networks:
+          - name: test
+        env:
+          MONGO: mongo
+          MONGO_PORT: 27017
+          RMQ_HOST: rabbit
+          RMQ_USERNAME: guest
+          RMQ_PASSWORD: guest
+          EXCLUDE_URLS: '.*github.com'
+        log_driver: fluentd
+        log_options:
+          fluentd-address: localhost:24224
+          tag: service.crawler
+
+    - name: Create mongo volume
+      docker_volume:
+        name: index_db

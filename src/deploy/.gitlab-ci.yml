@@ -1,0 +1,56 @@
+---
+stages:
+  - staging
+  - production
+
+staging:
+  image: williamyeh/ansible:ubuntu16.04
+  stage: staging
+  script:
+    - apt-get update
+    - apt-get --assume-yes install wget git unzip
+    - echo "$GOOGLE_CREDENTIALS" > ~/gcloud-service-key.json
+    - echo "$GOOGLE_APPUSER_KEY" > ~/appuser && chmod 600 ~/appuser
+    - wget https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
+    - unzip terraform_0.11.11_linux_amd64.zip -d /usr/local/bin/
+    - cd terraform
+    - terraform init
+    - terraform workspace select staging || terraform workspace new staging
+    - terraform apply -auto-approve -var "env_name=staging" -var "project=$GCLOUD_PROJECT_NAME"
+    - pip install google-auth
+    - cd ../ansible
+    - sed -i "s/secret-project-name/$GCLOUD_PROJECT_NAME/g" inventory.gcp.yml
+    - chmod 700 $(pwd)
+    - ansible-playbook playbook.yml --extra-vars "target_host=staging"
+  environment:
+    name: staging
+  only:
+    refs:
+      - master
+
+production:
+  image: williamyeh/ansible:ubuntu16.04
+  stage: production
+  script:
+    - apt-get update
+    - apt-get --assume-yes install wget git unzip
+    - echo "$GOOGLE_CREDENTIALS" > ~/gcloud-service-key.json
+    - echo "$GOOGLE_APPUSER_KEY" > ~/appuser && chmod 600 ~/appuser
+    - wget https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
+    - unzip terraform_0.11.11_linux_amd64.zip -d /usr/local/bin/
+    - cd terraform
+    - terraform init
+    - terraform workspace select production || terraform workspace new production
+    - terraform apply -auto-approve -var "env_name=production" -var "project=$GCLOUD_PROJECT_NAME"
+    - pip install google-auth
+    - cd ../ansible
+    - sed -i "s/secret-project-name/$GCLOUD_PROJECT_NAME/g" inventory.gcp.yml
+    - chmod 700 $(pwd)
+    - ansible-playbook playbook.yml --extra-vars "target_host=production"
+  environment:
+    name: production
+  when: manual
+  only:
+    refs:
+      - master
+

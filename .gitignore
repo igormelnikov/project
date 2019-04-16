@@ -5,3 +5,5 @@ terraform.tf*
 *.key
 __pycache__
 *.coverage
+terraform.*
+.terraform
