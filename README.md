@@ -24,7 +24,7 @@ The system is then used to manage the microservice repositories, the Docker regi
 
 ### Installing
 
-1. Set the `project` variable to the GCE project the system will be deployed in either in a  `terraform.tfvars` file or through the command line and then execute the following command:
+1. Set the `project` variable to the GCE project the system will be deployed in; either in the `terraform.tfvars` file or through the command line and then execute the following command:
    ```
    terraform apply infra/terraform
    ```
@@ -80,7 +80,7 @@ Services used:
 Repositories:
 
 - [prom](https://imel-project.ml/otus-project/prom/) - Prometheus container.
-- [grafana](https://imel-project.ml/otus-project/grafana/) - Grafana container. Authomaticaly provisions the Prometheus data source (see above) and dashboards. Available at port `3000`.
+- [grafana](https://imel-project.ml/otus-project/grafana/) - Grafana container. Automaticaly provisions the Prometheus data source (see above) and dashboards.
 - [alertmanager](https://imel-project.ml/otus-project/alertmanager/) - Alertmanager container. Set up to receive metrics from the Prometheus container and sends alerts to a Slack channel. The metrics monitored are "up" statuses from blackbox-exporter probes.
 
 ### Logging configuration
@@ -118,15 +118,15 @@ Repositories for monitoring and logging services contain only the build stage an
 
 ## Accessing microservices
 - Staging environment: `34.76.185.235`
-- Production environment: `34.76.60.50`
+- Production environment: `34.76.160.212`
 - UI: port `8000`
 - cAdvisor: port `8080`
 - Prometheus: port `9090`
-- Grafana: port `3000`
+- Grafana: port `3000`, login `admin`, password `secret`
 - Alertmanager: port `9093`
 - Kibana: port `5601`
 
-i.e. to access the search engine UI on production environment, open `http://34.76.185.235:8000`.
+i.e. to access the search engine UI on staging environment, open `http://34.76.185.235:8000`.
 
 ## Backlog
 
