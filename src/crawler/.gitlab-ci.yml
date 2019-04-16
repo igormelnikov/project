@@ -1,0 +1,78 @@
+---
+stages:
+  - build
+  - test
+  - review
+  - cleanup
+
+build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - docker build -t $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
+
+test:
+  stage: test
+  image: $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
+  script:
+    - pip install -r requirements-test.txt
+    - coverage run -m unittest discover -s tests/
+    - coverage report --include crawler/crawler.py
+
+review:
+  stage: review
+  image: williamyeh/ansible:ubuntu16.04
+  script:
+    - apt-get update
+    - apt-get --assume-yes install wget git unzip
+    - echo "$GOOGLE_CREDENTIALS" > ~/gcloud-service-key.json
+    - echo "$GOOGLE_APPUSER_KEY" > ~/appuser && chmod 600 ~/appuser
+    - wget https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
+    - unzip terraform_0.11.11_linux_amd64.zip -d /usr/local/bin/
+    - git clone http://imel-project.ml/$CI_PROJECT_NAMESPACE/deploy.git
+    - cd deploy/terraform
+    - terraform init
+    - terraform workspace select $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG || terraform workspace new $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+    - terraform apply -auto-approve -var "env_name=$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG" -var "project=$GCLOUD_PROJECT_NAME"
+    - pip install google-auth
+    - cd ../ansible
+    - sed -i "s/secret-project-name/$GCLOUD_PROJECT_NAME/g" inventory.gcp.yml
+    - chmod 700 $(pwd)
+    - ansible-playbook playbook.yml --extra-vars="target_host=$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG ${CI_PROJECT_NAME}_version=$CI_COMMIT_REF_NAME"
+  environment:
+    name: review/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
+    on_stop: stop_review
+  only:
+    - branches
+  except:
+    - master
+
+stop_review:
+  stage: cleanup
+  image: williamyeh/ansible:ubuntu16.04
+  script:
+    - apt-get update
+    - apt-get --assume-yes install wget git unzip
+    - echo $GOOGLE_CREDENTIALS > ~/gcloud-service-key.json
+    - wget https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
+    - unzip terraform_0.11.11_linux_amd64.zip -d /usr/local/bin/
+    - git clone http://imel-project.ml/$CI_PROJECT_NAMESPACE/deploy.git
+    - cd deploy/terraform
+    - terraform init && terraform workspace select $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+    - terraform destroy -auto-approve -var "env_name=$CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG" -var "project=$GCLOUD_PROJECT_NAME"
+    - terraform workspace select default
+    - terraform workspace delete $CI_PROJECT_PATH_SLUG-$CI_COMMIT_REF_SLUG
+  environment:
+    name: review/$CI_PROJECT_PATH/$CI_COMMIT_REF_NAME
+    action: stop
+  when: manual
+  allow_failure: true
+  only:
+    refs:
+      - branches
+  except:
+    - master
