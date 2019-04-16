@@ -3,3 +3,5 @@ secret_vars.yml
 terraform.tf*
 *.crt
 *.key
+__pycache__
+*.coverage
